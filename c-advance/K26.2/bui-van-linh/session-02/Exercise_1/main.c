@@ -4,15 +4,15 @@
 
 int main(void);
 
-const uint32_t global_variable = 100;
-uint32_t global_data = 50;
-uint32_t global_uninit;
+const uint32_t GLOBAL_VARIABLE = 100;
+uint32_t global_initialized = 50;
+uint32_t global_uninitialized;
 
 /**
  * @brief Print memory map of all 6 segments (text, rodata, data, bss, heap, stack)
  *        and the distance in bytes between consecutive segments (TEXT -> RODATA ->
  *        DATA -> BSS -> HEAP -> STACK).
- * @param None
+ * @param No parameter
  * @return 0 on success, -1 if malloc fails
  */
 uint8_t print_memory_map(void)
@@ -27,20 +27,19 @@ uint8_t print_memory_map(void)
     }
 
     uintptr_t addr_text  = (uintptr_t)&main;
-    uintptr_t addr_rodata = (uintptr_t)&global_variable;
-    uintptr_t addr_data   = (uintptr_t)&global_data;
-    uintptr_t addr_bss    = (uintptr_t)&global_uninit;
+    uintptr_t addr_rodata = (uintptr_t)&GLOBAL_VARIABLE;
+    uintptr_t addr_data   = (uintptr_t)&global_initialized;
+    uintptr_t addr_bss    = (uintptr_t)&global_uninitialized;
     uintptr_t addr_heap   = (uintptr_t)p_ptr;
     uintptr_t addr_stack  = (uintptr_t)&local_init;
 
     printf("[TEXT]   Address of main():            %p\n", (void *)addr_text);
     printf("[RODATA] Address of global_variable:   %p\n", (void *)addr_rodata);
-    printf("[DATA]   Address of global_data:       %p\n", (void *)addr_data);
-    printf("[BSS]    Address of global_uninit:     %p\n", (void *)addr_bss);
+    printf("[DATA]   Address of global_initialized:       %p\n", (void *)addr_data);
+    printf("[BSS]    Address of global_uninitialized:     %p\n", (void *)addr_bss);
     printf("[HEAP]   Address of p_ptr:              %p\n", (void *)addr_heap);
     printf("[STACK]  Address of local_init:         %p\n", (void *)addr_stack);
 
-    /* intptr_t vì các hiệu số này có thể âm tùy layout bộ nhớ thực tế */
     intptr_t delta_rodata_text = (intptr_t)addr_rodata - (intptr_t)addr_text;
     intptr_t delta_data_rodata = (intptr_t)addr_data   - (intptr_t)addr_rodata;
     intptr_t delta_bss_data    = (intptr_t)addr_bss    - (intptr_t)addr_data;
@@ -75,3 +74,12 @@ int main(void)
 
     return 0;
 }
+
+/*Size output
+   text	   data	    bss	    dec	    hex	filename
+   3013	    636	     16	   3665	    e51	./main
+
+    0000000000004010 D global_initialized
+    000000000000402c B global_uninitialized
+
+*/
